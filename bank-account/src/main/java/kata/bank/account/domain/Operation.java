@@ -1,4 +1,4 @@
 package kata.bank.account.domain;
 
-public interface Operation {
+public sealed interface Operation permits Deposit, Withdrawal {
 }

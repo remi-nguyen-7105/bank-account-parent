@@ -14,4 +14,6 @@ public interface AccountService {
     // requirement
     String printAccountStatement(String clientId);
 
+    void startNextStatement(String clientId);
+
 }
