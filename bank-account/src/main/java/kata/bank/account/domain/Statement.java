@@ -43,14 +43,20 @@ public class Statement {
         return new Statement(this);
     }
 
+    protected void add(Operation operation) {
+        Objects.requireNonNull(operation);
+        if (closingDate != null) {
+            throw new IllegalStateException("operation can not be add on close statement");
+        }
+        operation.check(this.getBalance());
+        operations.add(operation);
+    }
+
     // amount result from the operations sum in the statement
     public BigDecimal getAmount() {
         BigDecimal amount = BigDecimal.ZERO;
         for (Operation operation : operations) {
-            switch (operation) {
-                case Deposit deposit -> amount = amount.add(deposit.amount());
-                case Withdrawal withdrawal -> amount = amount.subtract(withdrawal.amount());
-            }
+            amount = operation.applyOn(amount);
         }
         return amount;
     }

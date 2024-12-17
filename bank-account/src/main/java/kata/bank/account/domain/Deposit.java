@@ -10,4 +10,9 @@ public record Deposit(BigDecimal amount) implements Operation {
             throw new IllegalArgumentException();
         }
     }
+
+    @Override
+    public BigDecimal applyOn(BigDecimal value) {
+        return value.add(amount());
+    }
 }
