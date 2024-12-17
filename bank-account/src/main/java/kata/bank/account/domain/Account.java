@@ -29,4 +29,8 @@ public class Account {
     public void process(Operation operation) {
         currentStatement.process(operation);
     }
+
+    public String printCurrentStatement() {
+        return currentStatement.toString();
+    }
 }

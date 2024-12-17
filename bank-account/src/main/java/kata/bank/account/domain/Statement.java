@@ -77,4 +77,9 @@ public class Statement {
         Money balance = previous == null ? Money.of(BigDecimal.ZERO, MoneyHelper.DEFAULT_CURRENCY_CODE) : previous.getBalance();
         return balance.add(getAmount());
     }
+
+    public String toString() {
+        String template = "date :  %s  amount :  %s balance : %s";
+        return String.format(template, getDate(), getAmount(), getBalance());
+    }
 }
