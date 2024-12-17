@@ -25,4 +25,8 @@ public class Account {
     public void startNextStatement() {
         currentStatement = currentStatement.nextStatement();
     }
+
+    public void process(Operation operation) {
+        currentStatement.process(operation);
+    }
 }

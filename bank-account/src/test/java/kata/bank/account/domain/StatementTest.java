@@ -84,7 +84,7 @@ public class StatementTest {
     @Test
     public void givenStatement_whenAdd_thenOperationMustNotBeNull() {
         Statement statement = new Statement();
-        assertThrows(NullPointerException.class, () -> statement.add(null));
+        assertThrows(NullPointerException.class, () -> statement.process(null));
     }
 
     @Test
@@ -92,7 +92,7 @@ public class StatementTest {
         Statement statement = new Statement();
         Deposit deposit = new Deposit(money(BigDecimal.ONE));
 
-        assertDoesNotThrow(() -> statement.add(deposit));
+        assertDoesNotThrow(() -> statement.process(deposit));
     }
 
     @Test
@@ -102,10 +102,10 @@ public class StatementTest {
         Withdrawal withdrawal_1 = new Withdrawal(money(BigDecimal.ONE));
         Withdrawal withdrawal_1000 = new Withdrawal(money("1000.00"));
 
-        statement.add(deposit_1001);
+        statement.process(deposit_1001);
 
-        assertDoesNotThrow(() -> statement.add(withdrawal_1000));
-        assertDoesNotThrow(() -> statement.add(withdrawal_1));
+        assertDoesNotThrow(() -> statement.process(withdrawal_1000));
+        assertDoesNotThrow(() -> statement.process(withdrawal_1));
     }
 
     @Test
@@ -115,10 +115,10 @@ public class StatementTest {
         Withdrawal withdrawal_10 = new Withdrawal(money(BigDecimal.TEN));
         Withdrawal withdrawal_1000 = new Withdrawal(money("1000.00"));
 
-        statement.add(deposit_1001);
+        statement.process(deposit_1001);
 
-        assertDoesNotThrow(() -> statement.add(withdrawal_1000));
-        assertThrows(InsufficientFundsException.class, () -> statement.add(withdrawal_10));
+        assertDoesNotThrow(() -> statement.process(withdrawal_1000));
+        assertThrows(InsufficientFundsException.class, () -> statement.process(withdrawal_10));
     }
 
     @Test
@@ -129,10 +129,10 @@ public class StatementTest {
         Withdrawal withdrawal_10 = new Withdrawal(money(BigDecimal.TEN));
         Withdrawal withdrawal_1000 = new Withdrawal(money("1000.00"));
 
-        statement.add(deposit_1000);
-        statement.add(deposit_1001);
-        statement.add(withdrawal_1000);
-        statement.add(withdrawal_10);
+        statement.process(deposit_1000);
+        statement.process(deposit_1001);
+        statement.process(withdrawal_1000);
+        statement.process(withdrawal_10);
 
         assertEquals(money("991.00"), statement.getAmount());
     }
@@ -145,10 +145,10 @@ public class StatementTest {
         Withdrawal withdrawal_10 = new Withdrawal(money(BigDecimal.TEN));
         Withdrawal withdrawal_1000 = new Withdrawal(money("1000.00"));
 
-        statement.add(deposit_1000);
-        statement.add(deposit_1001);
-        statement.add(withdrawal_1000);
-        statement.add(withdrawal_10);
+        statement.process(deposit_1000);
+        statement.process(deposit_1001);
+        statement.process(withdrawal_1000);
+        statement.process(withdrawal_10);
 
         assertEquals(money("991"), statement.getAmount());
 
@@ -162,13 +162,13 @@ public class StatementTest {
         Withdrawal withdrawal_10 = new Withdrawal(money(BigDecimal.TEN));
         Withdrawal withdrawal_1000 = new Withdrawal(money("1000.00"));
 
-        statement.add(deposit_1000);
+        statement.process(deposit_1000);
         assertEquals(statement.getBalance(), statement.getAmount());
-        statement.add(deposit_1001);
+        statement.process(deposit_1001);
         assertEquals(statement.getBalance(), statement.getAmount());
-        statement.add(withdrawal_1000);
+        statement.process(withdrawal_1000);
         assertEquals(statement.getBalance(), statement.getAmount());
-        statement.add(withdrawal_10);
+        statement.process(withdrawal_10);
         assertEquals(statement.getBalance(), statement.getAmount());
     }
 
@@ -178,7 +178,7 @@ public class StatementTest {
         previous.nextStatement();
         Deposit deposit = new Deposit(money("1000.00"));
 
-        assertThrows(IllegalStateException.class, () -> previous.add(deposit));
+        assertThrows(IllegalStateException.class, () -> previous.process(deposit));
     }
 
     @Test
@@ -186,16 +186,16 @@ public class StatementTest {
         Statement statement = new Statement();
         Deposit deposit_1000 = new Deposit(money("1000.00"));
         Deposit deposit_1001 = new Deposit(money("1001.00"));
-        statement.add(deposit_1000);
-        statement.add(deposit_1001);
+        statement.process(deposit_1000);
+        statement.process(deposit_1001);
 
         Statement next = statement.nextStatement();
         Withdrawal withdrawal_10 = new Withdrawal(money(BigDecimal.TEN));
         Withdrawal withdrawal_1000 = new Withdrawal(money("1000.00"));
-        next.add(withdrawal_1000);
+        next.process(withdrawal_1000);
 
         assertEquals(money("1001.00"), next.getBalance());
-        next.add(withdrawal_10);
+        next.process(withdrawal_10);
         assertEquals(money("991.00"), next.getBalance());
     }
 }

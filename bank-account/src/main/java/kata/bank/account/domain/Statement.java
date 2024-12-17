@@ -46,12 +46,16 @@ public class Statement {
         return new Statement(this);
     }
 
-    protected void add(Operation operation) {
+    private void check(Operation operation) {
         Objects.requireNonNull(operation);
         if (closingDate != null) {
-            throw new IllegalStateException("operation can not be add on close statement");
+            throw new IllegalStateException("new operation can not be process on close statement");
         }
         operation.check(this.getBalance());
+    }
+
+    protected void process(Operation operation) {
+        check(operation);
         operations.add(operation);
     }
 
