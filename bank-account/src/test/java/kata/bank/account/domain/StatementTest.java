@@ -1,6 +1,8 @@
 package kata.bank.account.domain;
 
 import kata.bank.account.exception.InsufficientFundsException;
+import kata.bank.account.utils.MoneyHelper;
+import org.javamoney.moneta.Money;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
@@ -10,6 +12,14 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class StatementTest {
 
+    private Money money(BigDecimal amount) {
+        return Money.of(amount, MoneyHelper.DEFAULT_CURRENCY_CODE);
+    }
+
+    private Money money(String amount) {
+        return money(new BigDecimal(amount));
+    }
+
     @Test
     public void whenCreate_ok() {
         assertDoesNotThrow(Statement::new);
@@ -18,13 +28,13 @@ public class StatementTest {
     @Test
     public void givenNewStatement_thenBalanceIsZero() {
         Statement statement = new Statement();
-        assertEquals(BigDecimal.ZERO, statement.getBalance());
+        assertEquals(money(BigDecimal.ZERO), statement.getBalance());
     }
 
     @Test
     public void givenNewStatement_thenAmountIsZero() {
         Statement statement = new Statement();
-        assertEquals(BigDecimal.ZERO, statement.getAmount());
+        assertEquals(money(BigDecimal.ZERO), statement.getAmount());
     }
 
     @Test
@@ -80,7 +90,7 @@ public class StatementTest {
     @Test
     public void givenStatement_whenAddDeposit_ok() {
         Statement statement = new Statement();
-        Deposit deposit = new Deposit(BigDecimal.ONE);
+        Deposit deposit = new Deposit(money(BigDecimal.ONE));
 
         assertDoesNotThrow(() -> statement.add(deposit));
     }
@@ -88,9 +98,9 @@ public class StatementTest {
     @Test
     public void givenStatement_whenAddWithdrawal_WithSufficientFund_ok() {
         Statement statement = new Statement();
-        Deposit deposit_1001 = new Deposit(new BigDecimal("1001.00"));
-        Withdrawal withdrawal_1 = new Withdrawal(BigDecimal.ONE);
-        Withdrawal withdrawal_1000 = new Withdrawal(new BigDecimal("1000.00"));
+        Deposit deposit_1001 = new Deposit(money("1001.00"));
+        Withdrawal withdrawal_1 = new Withdrawal(money(BigDecimal.ONE));
+        Withdrawal withdrawal_1000 = new Withdrawal(money("1000.00"));
 
         statement.add(deposit_1001);
 
@@ -101,9 +111,9 @@ public class StatementTest {
     @Test
     public void givenStatement_whenAddWithdrawal_WithoutSufficientFund_ko() {
         Statement statement = new Statement();
-        Deposit deposit_1001 = new Deposit(new BigDecimal("1001.00"));
-        Withdrawal withdrawal_10 = new Withdrawal(BigDecimal.TEN);
-        Withdrawal withdrawal_1000 = new Withdrawal(new BigDecimal("1000.00"));
+        Deposit deposit_1001 = new Deposit(money("1001.00"));
+        Withdrawal withdrawal_10 = new Withdrawal(money(BigDecimal.TEN));
+        Withdrawal withdrawal_1000 = new Withdrawal(money("1000.00"));
 
         statement.add(deposit_1001);
 
@@ -114,45 +124,43 @@ public class StatementTest {
     @Test
     public void givenStatement_afterAddingMultipleOperation_thenAmount_ok_0() {
         Statement statement = new Statement();
-        Deposit deposit_1000 = new Deposit(new BigDecimal("1000.00"));
-        Deposit deposit_1001 = new Deposit(new BigDecimal("1001.00"));
-        Withdrawal withdrawal_10 = new Withdrawal(BigDecimal.TEN);
-        Withdrawal withdrawal_1000 = new Withdrawal(new BigDecimal("1000.00"));
+        Deposit deposit_1000 = new Deposit(money("1000.00"));
+        Deposit deposit_1001 = new Deposit(money("1001.00"));
+        Withdrawal withdrawal_10 = new Withdrawal(money(BigDecimal.TEN));
+        Withdrawal withdrawal_1000 = new Withdrawal(money("1000.00"));
 
         statement.add(deposit_1000);
         statement.add(deposit_1001);
         statement.add(withdrawal_1000);
         statement.add(withdrawal_10);
 
-        assertEquals(new BigDecimal("991.00"), statement.getAmount());
+        assertEquals(money("991.00"), statement.getAmount());
     }
 
-    /* rounding problem
     @Test
     public void givenStatement_afterAddingMultipleOperation_thenAmount_ok_1() {
         Statement statement = new Statement();
-        Deposit deposit_1000 = new Deposit(new BigDecimal("1000.00"));
-        Deposit deposit_1001 = new Deposit(new BigDecimal("1001.00"));
-        Withdrawal withdrawal_10 = new Withdrawal(BigDecimal.TEN);
-        Withdrawal withdrawal_1000 = new Withdrawal(new BigDecimal("1000.00"));
+        Deposit deposit_1000 = new Deposit(money("1000.00"));
+        Deposit deposit_1001 = new Deposit(money("1001.00"));
+        Withdrawal withdrawal_10 = new Withdrawal(money(BigDecimal.TEN));
+        Withdrawal withdrawal_1000 = new Withdrawal(money("1000.00"));
 
         statement.add(deposit_1000);
         statement.add(deposit_1001);
         statement.add(withdrawal_1000);
         statement.add(withdrawal_10);
 
-        assertEquals(new BigDecimal("991"), statement.getAmount());
+        assertEquals(money("991"), statement.getAmount());
 
     }
-    */
 
     @Test
     public void givenStatementWithoutPrevious_afterAddingMultipleOperation_thenAmountEqualBalance() {
         Statement statement = new Statement();
-        Deposit deposit_1000 = new Deposit(new BigDecimal("1000.00"));
-        Deposit deposit_1001 = new Deposit(new BigDecimal("1001.00"));
-        Withdrawal withdrawal_10 = new Withdrawal(BigDecimal.TEN);
-        Withdrawal withdrawal_1000 = new Withdrawal(new BigDecimal("1000.00"));
+        Deposit deposit_1000 = new Deposit(money("1000.00"));
+        Deposit deposit_1001 = new Deposit(money("1001.00"));
+        Withdrawal withdrawal_10 = new Withdrawal(money(BigDecimal.TEN));
+        Withdrawal withdrawal_1000 = new Withdrawal(money("1000.00"));
 
         statement.add(deposit_1000);
         assertEquals(statement.getBalance(), statement.getAmount());
@@ -168,7 +176,7 @@ public class StatementTest {
     public void givenPreviousStatement_whenAddingOperation_ko() {
         Statement previous = new Statement();
         previous.nextStatement();
-        Deposit deposit = new Deposit(new BigDecimal("1000.00"));
+        Deposit deposit = new Deposit(money("1000.00"));
 
         assertThrows(IllegalStateException.class, () -> previous.add(deposit));
     }
@@ -176,18 +184,18 @@ public class StatementTest {
     @Test
     public void givenChainedStatements_whenAddingOperationAcrossTheChainedStatement_thenBalance_ok() {
         Statement statement = new Statement();
-        Deposit deposit_1000 = new Deposit(new BigDecimal("1000.00"));
-        Deposit deposit_1001 = new Deposit(new BigDecimal("1001.00"));
+        Deposit deposit_1000 = new Deposit(money("1000.00"));
+        Deposit deposit_1001 = new Deposit(money("1001.00"));
         statement.add(deposit_1000);
         statement.add(deposit_1001);
 
         Statement next = statement.nextStatement();
-        Withdrawal withdrawal_10 = new Withdrawal(BigDecimal.TEN);
-        Withdrawal withdrawal_1000 = new Withdrawal(new BigDecimal("1000.00"));
+        Withdrawal withdrawal_10 = new Withdrawal(money(BigDecimal.TEN));
+        Withdrawal withdrawal_1000 = new Withdrawal(money("1000.00"));
         next.add(withdrawal_1000);
 
-        assertEquals(new BigDecimal("1001.00"), next.getBalance());
+        assertEquals(money("1001.00"), next.getBalance());
         next.add(withdrawal_10);
-        assertEquals(new BigDecimal("991.00"), next.getBalance());
+        assertEquals(money("991.00"), next.getBalance());
     }
 }

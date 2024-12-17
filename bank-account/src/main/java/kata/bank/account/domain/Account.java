@@ -1,6 +1,7 @@
 package kata.bank.account.domain;
 
-import java.math.BigDecimal;
+import org.javamoney.moneta.Money;
+
 import java.util.Objects;
 
 public class Account {
@@ -17,7 +18,7 @@ public class Account {
         return clientId;
     }
 
-    public BigDecimal getBalance() {
+    public Money getBalance() {
         return currentStatement.getBalance();
     }
 

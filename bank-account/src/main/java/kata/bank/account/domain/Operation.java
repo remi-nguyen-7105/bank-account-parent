@@ -1,11 +1,11 @@
 package kata.bank.account.domain;
 
-import java.math.BigDecimal;
+import org.javamoney.moneta.Money;
 
 public sealed interface Operation permits Deposit, Withdrawal {
-    default void check(BigDecimal balance) {
+    default void check(Money balance) {
         // no check
     }
 
-    BigDecimal applyOn(BigDecimal value);
+    Money applyOn(Money value);
 }

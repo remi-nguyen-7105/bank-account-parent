@@ -1,5 +1,8 @@
 package kata.bank.account.domain;
 
+import kata.bank.account.utils.MoneyHelper;
+import org.javamoney.moneta.Money;
+
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -12,9 +15,9 @@ public class Statement {
 
     private Statement previous;
     // closingDate allow to manage Statement history
-    // a "closed" statement is that is previous to another Statement
+    // a "closed" statement is one that is previous to another Statement
     // see Statement>nextStatement()
-    // using closingDate works better with Statement>getDate() than using a status
+    // using a closingDate fit better with Statement>getDate() than using a status
     private LocalDateTime closingDate;
 
     public Statement() {
@@ -53,8 +56,8 @@ public class Statement {
     }
 
     // amount result from the operations sum in the statement
-    public BigDecimal getAmount() {
-        BigDecimal amount = BigDecimal.ZERO;
+    public Money getAmount() {
+        Money amount = Money.of(BigDecimal.ZERO, MoneyHelper.DEFAULT_CURRENCY_CODE);
         for (Operation operation : operations) {
             amount = operation.applyOn(amount);
         }
@@ -63,9 +66,11 @@ public class Statement {
 
     // balance represents available funds in account after processing :
     // - all operations in related statement
-    // - all other past operations (-> delegate to previous)
-    public BigDecimal getBalance() {
-        BigDecimal balance = previous == null ? BigDecimal.ZERO : previous.getBalance();
+    // - all other past operations (=> delegate to previous)
+    public Money getBalance() {
+        // balance could be store/cache on a "close" statement for optimisation
+        // better approach would be to create a Page/Block class of Operation with a fix max size
+        Money balance = previous == null ? Money.of(BigDecimal.ZERO, MoneyHelper.DEFAULT_CURRENCY_CODE) : previous.getBalance();
         return balance.add(getAmount());
     }
 }

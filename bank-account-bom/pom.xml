@@ -20,11 +20,17 @@
                 <version>${junit.version}</version>
                 <scope>test</scope>
             </dependency>
+            <dependency>
+                <groupId>org.javamoney.moneta</groupId>
+                <artifactId>moneta-core</artifactId>
+                <version>${moneta.version}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
     <properties>
         <junit.version>5.11.3</junit.version>
+        <moneta.version>1.4.4</moneta.version>
     </properties>
 
 </project>
